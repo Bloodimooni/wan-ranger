@@ -1,6 +1,4 @@
 import time, subprocess, sys
-
-
 # Importing more libraries, if they don't exist we try to install them using pip
 try:
     from termcolor import cprint as cp
