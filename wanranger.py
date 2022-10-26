@@ -11,11 +11,11 @@ except:
 
 
 class IP:
-    def __init__(self, front, save_reachable_only):
+    def __init__(self, front, save_file):
         self.front = front
         self.reachable = []
         self.unreachable = []
-        self.save_reachable_only = True
+        self.save_file = save_file
 
     def ping(self,host):
         ip = self.front + str(host)
@@ -31,25 +31,15 @@ class IP:
             self.unreachable.append(host)
 
     def save(self):
-        with open("results_for_%s.txt" % self.front,"w+") as file:
-            file.write("Scan start \n\n")
-
-        if self.save_reachable_only == True:
-            with open("results_for_%s.txt" % self.front,"a") as res:
-                for host in self.reachable:
-                    res.write("Host - %s%s is reachable\n" % (self.front,host))
-        else:
-            with open("results_for_%s.txt" % self.front,"a") as res:
+        with open("results_for_%s.txt" % self.front,"w+") as res:
+            res.write("\t## Scan for %s ##\n\n" % self.front)
+            if self.save_file == True:
                 res.write("\t ++ alive hosts ++\n")
                 for host in self.reachable:
                     res.write("Host - %s%s is reachable\n" % (self.front,host))
                 res.write("\n\t -- down hosts --\n")
                 for host in self.unreachable:
                     res.write("Host - %s%s is unreachable\n" % (self.front,host))
-
-
-
-
 
 def clear():
     print("\n"*100)
@@ -60,25 +50,24 @@ Banner = "\n\n\t*****************\n" + \
              "\t*****************\n\n" + \
              "\n\tCTLR + C to exit\n\n"
 
-
-
 while True:
     try:
         clear()
         cp(Banner, "yellow")
+        front = sys.argv[1]
+        save_file = sys.argv[2]
+    except:
+        cp("Commandline arguments gave an error.","red")
+        sys.exit(1)
 
-        cp("IP-Range:","yellow")
-        front = input()
-
-        cp("Only save reachable hosts? (yes/no)","yellow")
-        reachable_only = input()
-
-        if "y" in reachable_only.lower():
-            reachable_only = True
+    try:
+        if "y" in save_file.lower():
+            save_file = True
         else:
-            reachable_only = False
+            save_file = False
 
-        ip = IP(front,reachable_only)
+        ip = IP(front,save_file)
+        cp("[~] Started scan for %s" % ip.front,"green")
         pool = mp.Pool(254)
         pool.map(ip.ping,range(1,255))
         pool.close()
