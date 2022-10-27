@@ -114,7 +114,7 @@ __      __ ___    _  _              ___     ___    _  _     ___     ___     ___
 _|"""""|_|"""""|_|"""""| {======|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|
 "`-0-0-'"`-0-0-'"`-0-0-'./o--000'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'
                             MADE BY BloodiMooni#1001
-'''
+\n\n'''
 
 def banner(Banner,title=""):
     if platform == "linux" or platform == "linux2":
@@ -135,7 +135,7 @@ try:
     if "y" in save_file.lower():
         ip.save_file = True
         with open("results_for_%s.txt" % ip.ip_address ,"w+") as f:
-            f.write("#########\tBeginning of scan for %s\t#########" % ip.ip_address)
+            f.write(Banner)
     else:
         ip.save_file = False
     if ip.figure_out_type() == 24:
