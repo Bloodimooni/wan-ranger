@@ -1,5 +1,6 @@
-import time, subprocess, sys
-# Importing more libraries, if they don't exist we try to install them using pip
+import time, subprocess, sys, os
+from sys import platform
+
 try:
     from termcolor import cprint as cp
 except:
@@ -32,9 +33,8 @@ class IP:
             self.unreachable.append(host)
 
     def save(self):
-        current_ip = "%s.%s.%s.%s" % (self.host_address[0],self.host_address[1],self.host_address[2],"0")
         if self.save_file == True and len(self.reachable) > 0:
-            with open("results_for_%s.txt" % current_ip ,"w+") as res:
+            with open("results_for_%s.txt" % self.ip_address ,"a") as res:
                 res.write("\t## Scan for %s ##\n\n" % self.ip_address)
                 res.write("\t ++ alive hosts ++\n")
                 for host in self.reachable:
@@ -43,16 +43,10 @@ class IP:
 
     def figure_out_type(self):
         if self.host_address[2] == "0" and self.host_address[3] == "0":
-            #cp("We have a B class network here.","blue")
             return 16
 
         elif self.host_address[2] != "0" and self.host_address[3] == "0":
-            #cp("We have a C class network here.","blue")
             return 24
-
-
-def clear():
-    print("\n"*100)
 
 
 def scan_16(ip,ip_address):
@@ -74,14 +68,11 @@ def scan_16(ip,ip_address):
 
             else:
                 cp("\n\t-- No alive hosts found --", "red")
-                #for host in ip.unreachable:
-                    #cp("[-] Host : %s.%s.%s.%s is down" % (ip.host_address[0],ip.host_address[1],ip.host_address[2],host), "red")
 
             cp("\n ************ SCAN COMPLETE ************\n\n", "yellow")
             ip.save()
             ip.reachable = []
             ip.unreachable = []
-
 
         except KeyboardInterrupt:
             cp("\n\n[~] USER INTERRUPT - Exiting.","red")
@@ -115,29 +106,43 @@ def scan_24(ip,ip_address):
         sys.exit(0)
 
 
-Banner = "\n\n\t*****************\n" + \
-             "\t* WAN-Ranger by *\n" + \
-             "\t*  BloodiMooni  *\n" + \
-             "\t*****************\n\n" + \
-             "\n\tCTLR + C to exit\n\n"
+Banner = '''
+__      __ ___    _  _              ___     ___    _  _     ___     ___     ___
+\ \    / //   \  | \| |     o O O  | _ \   /   \  | \| |   / __|   | __|   | _ \\
+ \ \/\/ / | - |  | .` |    o       |   /   | - |  | .` |  | (_ |   | _|    |   /
+  \_/\_/  |_|_|  |_|\_|   TS__[O]  |_|_\   |_|_|  |_|\_|   \___|   |___|   |_|_\\
+_|"""""|_|"""""|_|"""""| {======|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|
+"`-0-0-'"`-0-0-'"`-0-0-'./o--000'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'
+                            MADE BY BloodiMooni#1001
+'''
+
+def banner(Banner,title=""):
+    if platform == "linux" or platform == "linux2":
+        os.system("clear")
+    elif platform == "darwin":
+        os.system("clear")
+    elif platform == "win32":
+        os.system("cls")
+    cp(Banner,"yellow")
 
 
-#try:
-clear()
-cp(Banner, "yellow")
-ip_address = sys.argv[1]
-save_file = sys.argv[2]
+try:
+    banner(Banner)
+    ip_address = sys.argv[1]
+    save_file = sys.argv[2]
 
-ip = IP(ip_address,save_file)
-if "y" in save_file.lower():
-    ip.save_file = True
-else:
-    ip.save_file = False
-if ip.figure_out_type() == 24:
-    scan_24(ip,ip_address)
-elif ip.figure_out_type() == 16:
-    scan_16(ip,ip_address)
+    ip = IP(ip_address,save_file)
+    if "y" in save_file.lower():
+        ip.save_file = True
+        with open("results_for_%s.txt" % ip.ip_address ,"w+") as f:
+            f.write("#########\tBeginning of scan for %s\t#########" % ip.ip_address)
+    else:
+        ip.save_file = False
+    if ip.figure_out_type() == 24:
+        scan_24(ip,ip_address)
+    elif ip.figure_out_type() == 16:
+        scan_16(ip,ip_address)
 
-#except:
-#    cp("Commandline arguments gave an error.","red")
-#    sys.exit(1)
+except:
+    cp("Commandline arguments gave an error.","red")
+    sys.exit(1)
